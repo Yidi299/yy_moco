@@ -1,5 +1,9 @@
 #swin_base 训练
-* sdad
+* accumulation_steps是梯度累计步数
+* net选择timm.swinv2_base_window12to16_192to256_22kft1k使用timm库导入
+* cos_step是训练的总步数
+* warmup_step是线性上升的步数
+* base_batchsize是swin_V2原文中的bathsize，如果修改bathcsize以这个为参考缩放学习率
 ```
 horovodrun -np 8 python hago/train_hago_timm.py \
 --list-file "/data1/liuyidi/scene_cls/V4.1.2/list/train_list/train_list_remove4_new_resample.txt" \
@@ -49,6 +53,9 @@ for ((i=512000; i<=$Nckpts; i+=$Ninterval)); do
     ${i} &
 ```
 
+* net选择setting，导入自定义的swin_V2选项，因为从256fixresto384的网络原文没有，因此自定义了以下
+* ps:为什么要从256fixres到384而不使用原文的设定，本质上是因为训练量没有和原文对齐，所以使用原文最后阶段的预训练权重效果会更好，如果有机会对齐训练量可以尝试原文方法
+  
 #swin_base fixres训练
 ```
 horovodrun -np 8 python hago/train_hago_timm.py \
@@ -100,6 +107,8 @@ for ((i= 128000 ; i<=$Nckpts; i+=$Ninterval)); do
 done
 ```
 
+* feature_path是作为特征提取器网络的权重
+  
 四图特征融合训练
 ```
 horovodrun -np 8 python /data1/liuyidi/moco/four_pic/train_hago_4_2.py \
